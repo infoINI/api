@@ -8,6 +8,9 @@
     "restler": "~3.2.2",
     "q": "~1.0.1",
     "restler-q": "0.0.3",
-    "request": "~2.46.0"
+    "request": "~2.46.0",
+    "xpath": "0.0.9",
+    "xmldom": "~0.1.19",
+    "html-entities": "~1.1.2"
   }
 }
