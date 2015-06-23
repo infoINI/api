@@ -36,6 +36,7 @@ refreshCafe = ->
   }, (res) ->
     res.on 'data', (data) ->
       cafeStatus = JSON.parse(data)
+      # value ignored
       cafeStatus.status = undefined
   .on 'error', ->
     console.error('request error')
@@ -44,17 +45,20 @@ refreshCafe = ->
 
 
 refreshTuer = ->
-  req = http.request
-    host:'iniwlan.beuth-hochschule.de'
-    port:4000
-    path:'/'
-  , (res) ->
-    res.on 'data', (data) ->
-      cafeStatus = JSON.parse(data)
-      cafeStatus.status = undefined
-    req.on 'error', ->
-      console.error('request error')
-  req.end()
+  client = new net.Socket
+
+  client.on 'data', (data) ->
+    pyStatus = JSON.parse(data)
+    tuerStatus.status = pyStatus.tuer_offen?'OPEN':'CLOSED'
+    client.destroy()
+
+  client.on 'error', (e) ->
+    console.error('error', e)
+
+  client.on 'timeout', ->
+    console.error('timeout')
+
+  client.connect(51966, 'localhost')
 
 setInterval refreshCafe, 1000
 setInterval refreshTuer, 1000
