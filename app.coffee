@@ -49,7 +49,7 @@ refreshTuer = ->
 
   client.on 'data', (data) ->
     pyStatus = JSON.parse(data)
-    tuerStatus.status = pyStatus.tuer_offen?'OPEN':'CLOSED'
+    tuerStatus.status = if pyStatus.tuer_offen then 'OPEN' else 'CLOSED'
     client.destroy()
 
   client.on 'error', (e) ->
