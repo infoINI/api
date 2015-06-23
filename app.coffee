@@ -1,6 +1,7 @@
 http = require('http')
 express = require('express')
 request = require('request')
+net = require('net')
 
 members = require('./members.js')
 MensaFeed = require('./mensa')
@@ -41,10 +42,26 @@ refreshCafe = ->
   .end()
 
 
+
+refreshTuer = ->
+  req = http.request
+    host:'iniwlan.beuth-hochschule.de'
+    port:4000
+    path:'/'
+  , (res) ->
+    res.on 'data', (data) ->
+      cafeStatus = JSON.parse(data)
+      cafeStatus.status = undefined
+    req.on 'error', ->
+      console.error('request error')
+  req.end()
+
 setInterval refreshCafe, 1000
+setInterval refreshTuer, 1000
 setInterval refreshMensa, 30*60*1000
 
 refreshCafe()
+refreshTuer()
 refreshMensa()
 
 
