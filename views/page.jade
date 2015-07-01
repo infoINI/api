@@ -1,0 +1,46 @@
+doctype html
+html
+  head
+    title!= title
+
+  body
+    h1!= title
+    .content!= description
+
+    h2 Meta
+    pre= meta
+
+    h2 Directories
+      table(border=1)
+        tr
+          th Name (Alias)
+          th Files
+          th Dirs
+          th Tags
+        unless path == ''
+          tr
+            td
+              a(href='../') ..
+        each dir in dirs
+          tr
+            td
+              a(href=dir.name+'/')= dir.name
+              = ' '
+              if dir.meta.alias
+                span (#{dir.meta.alias})
+            td= dir.files
+            td= dir.dirs
+            td= dir.meta.tags.join(', ')
+
+    h2 Files
+      table(border=1)
+        tr
+          th Name
+          th Type
+          th Size (Bytes)
+        each file in files
+          tr
+            td
+              a(href="/api/lh/file/#{path}#{file.name}")= file.name
+            td= file.mime
+            td= file.size

@@ -3,7 +3,10 @@ var request = require('request');
 var Q = require('q');
 var crypto = require('crypto');
 
-var authKey = 'cd12744bf5c6d9f5816cba58bc17e57091c4492c';
+var authKey = '';
+setApiKey = function (key) {
+    authKey = key;
+};
 
 var getGroupMembers = function (groupID) {
     var url = 'http://infoini.de/redmine/groups/' + groupID + '.json';
@@ -68,7 +71,7 @@ var getMembers = function (groupId) {
             var d = Q.defer();
             var r = request({ url: member.photo_url, method: 'HEAD' }, function (error, response, body) {
                 var hash;
-                if (error || response.statusCode != 200) {
+                if (error || response.statusCode !== 200) {
                     //member.photo_url = 'http://infoini.de/photos/photos/FSRler/default.png';
                     hash = crypto.createHash('md5').update(member.email).digest('hex');
                     member.photo_url = 'http://www.gravatar.com/avatar/' + hash + '?s=200&d=retro';
@@ -85,6 +88,7 @@ var groupIdFsr = 158;
 var groupIdHelpers = 478;
 
 module.exports = {
+    setApiKey: setApiKey,
     getFSR: function () {
         return getMembers(groupIdFsr);
     },

@@ -1,28 +1,38 @@
-http = require('http')
-express = require('express')
-request = require('request')
-net = require('net')
+http = require 'http'
+express = require 'express'
+request = require 'request'
+net = require 'net'
 
-members = require('./members.js')
-MensaFeed = require('./mensa')
 
+config = require './config.defaults'
+try
+  config[k] = v for k,v of require './config'
+catch e
+  console.warn 'can not load config, using defaults', e.toString()
+
+members = require './members.js'
+MensaFeed = require './mensa'
+lh = require './lh'
+
+members.setApiKey config.redmineAuthKey
 
 app = express()
+app.set 'view engine', 'jade'
 
 
+app.use '/api/lh', lh.router
 
-jRespond = (res,data) ->
-  res.contentType('application/json')
-  res.charset = 'utf-8'
-  res.end(JSON.stringify(data))
+lh.Paths.setArchiveRoot config.lhRoot
+lh.Paths.setUploadRoot config.lhUploads
+
+
 
 cafeStatus = {}
 tuerStatus = {}
 mensaPlan = {}
 
 refreshMensa = ->
-  url = 'http://www.studentenwerk-berlin.de/speiseplan/rss/beuth/woche/kurz/0'
-  request url, (err, res, body) ->
+  request config.mensaUrl, (err, res, body) ->
     m = new MensaFeed
     m.parseTable(body)
     mensaPlan = m.getPlan()
@@ -30,16 +40,16 @@ refreshMensa = ->
 
 refreshCafe = ->
   req = http.request {
-    host:'iniwlan.beuth-hochschule.de',
-    port:4000,
+    host: config.cafeHost
+    port: config.cafePort
     path:'/'
   }, (res) ->
     res.on 'data', (data) ->
       cafeStatus = JSON.parse(data)
       # value ignored
       cafeStatus.status = undefined
-  .on 'error', ->
-    console.error('request error')
+  .on 'error', (e) ->
+    console.warn 'cafe: request failed', e.toString()
   .end()
 
 
@@ -53,16 +63,16 @@ refreshTuer = ->
     client.destroy()
 
   client.on 'error', (e) ->
-    console.error('error', e)
+    console.warn 'tuer: request failed', e.toString()
 
-  client.on 'timeout', ->
-    console.error('timeout')
 
-  client.connect(51966, 'localhost')
+  client.connect(config.tuerPort, config.tuerHost)
 
-setInterval refreshCafe, 1000
-setInterval refreshTuer, 1000
-setInterval refreshMensa, 30*60*1000
+# TODO use events instead of polling where possible
+# TODO add evented longpolling/socket.io API
+setInterval refreshCafe, config.refreshIntervalCafe
+setInterval refreshTuer, config.refreshIntervalTuer
+setInterval refreshMensa, config.refreshIntervalMensa
 
 refreshCafe()
 refreshTuer()
@@ -90,45 +100,51 @@ app.get '/api/status.xml', (req, res) ->
           </cafe>
         </infoini>
         """
-  res.contentType('text/xml')
+  res.contentType 'text/xml'
   res.charset = 'utf-8'
-  res.end(xml)
+  res.end xml
 
 app.get '/api/combined.json', (req, res) ->
   console.log('get combined')
   combined = {}
   combined.pots = cafeStatus.pots
   combined.status = tuerStatus.status
-  jRespond res, combined
+  res.json combined
 
 
 app.get '/api/members.json', (req, res) ->
   members.getFSR().then (members) ->
-    jRespond res,  members: members
+    res.json members: members
 
 app.get '/api/helpers.json', (req, res) ->
   members.getHelpers().then (members) ->
-    jRespond res, members: members
+    res.json members: members
 
 app.get '/api/cafe.json', (req, res) ->
   console.log('get cafe')
-  jRespond res, cafeStatus
+  res.json cafeStatus
 
 app.get '/api/door.json', (req, res) ->
   console.log('get door')
-  jRespond res, tuerStatus
+  res.json tuerStatus
 
 app.get '/api/zuendstoff.pdf', (req, res) ->
   console.log('get zuendstoff')
   res.redirect(
-    'http://infoini.de/redmine/attachments/download/422/zs-ss2015.pdf'
+    config.fileZuendstoff
   )
   res.end()
 
 app.get '/api/mensa.json', (req, res) ->
   console.log('get mensa')
-  jRespond res, mensaPlan
+  res.json mensaPlan
+
+
+app.get '/api/mensa.json', (req, res) ->
+  console.log('get mensa')
+  res.json mensaPlan
+
 
 app.use("/api", express.static(__dirname + '/static'))
-app.listen(3000)
+app.listen(config.httpPort)
 
