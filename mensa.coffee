@@ -1,5 +1,6 @@
-fs = require 'fs'
 Q = require 'q'
+request = require 'request'
+config = require './config'
 
 xpath = require('xpath')
 Dom = require('xmldom').DOMParser
@@ -55,7 +56,18 @@ module.exports = class MensaFeed
         plan[d][c] = @getContents(ci+1, di+1)
     return plan
 
+  get: ->
+    d = Q.defer()
+    request config.mensaUrl, (err, res, body) ->
+      m = new MensaFeed
+      m.parseTable(body)
+      mensaPlan = m.getPlan()
+      d.resolve(mensaPlan)
+    return d.promise
+    
+
 #m = new MensaPlan
+#fs = require 'fs'
 #fs.readFile __dirname + '/mensa.atom', (err, data) ->
 #  return console.err err if err
 #  m.parseTable(data.toString())

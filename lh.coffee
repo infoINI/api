@@ -7,7 +7,9 @@ yaml = require 'js-yaml'
 mmm = require 'mmmagic'
 express = require 'express'
 multipart = require 'connect-multiparty'
-mkdirp = require 'mkdirp'
+elasticsearch = require 'elasticsearch'
+config = require './config'
+
 
 
 multipartMiddleware = multipart()
@@ -18,18 +20,55 @@ magic = new mmm.Magic(mmm.MAGIC_MIME_TYPE)
 
 # static class for settings
 class Paths
-  archiveRoot : './'
-  uploadRoot : './uploads/'
+  @getFullPath: (_path) ->
+    path.join(config.archiveRoot, _path)
 
-  @setArchiveRoot: (root) ->
-    @archiveRoot = root
+  @getFullUploadPath: (_path) ->
+    path.join(config.uploadRoot, _path)
 
-  @setUploadRoot: (root) ->
-    @uploadRoot = root
 
-  @getFullPath: (_path) -> path.join(@archiveRoot, _path)
+class Index
+  constructor: ->
+    @client = new elasticsearch.Client(
+      host: 'localhost:9200'
+      log: 'trace'
+    )
+    @createUpdateMapping()
 
-  @getFullUploadPath: (_path) -> path.join(@uploadRoot, _path)
+  createUpdateMapping: ->
+    mappings = {
+      file:
+        properties:
+          availible:
+            type: 'bool'
+          title:
+            type: 'string'
+          checksum:
+            type: 'string'
+          text:
+            type: 'string'
+          tags: # TODO
+            type: 'string'
+          mime:
+            type: 'string'
+          size:
+            type: 'long'
+      dir:
+        properties:
+          availible:
+            type: 'bool'
+          subdirs:
+            type: 'string'
+          files:
+            type: 'string'
+          description:
+            type: 'string'
+    }
+    for name, mapping of mappings
+      @client.indices.putMapping(
+        type: name
+        body: mapping
+      )
 
 
 class File
@@ -46,6 +85,9 @@ class File
         )
 
   constructor: (@name, @size, @mime, @lastChanged) ->
+
+  # add /update file in index
+  index: ->
 
 
 class Dir
@@ -95,6 +137,9 @@ class Dir
   ) ->
     @meta.tags ?= []
 
+  # add update dir in index
+  index: ->
+
 
 class Page
   constructor: (@path, @dir, @files, @subdirs) ->
@@ -137,7 +182,8 @@ class Page
 
     return d.promise
 
-
+  # create/update page in index
+  index: ->
 
 handleFileUpload = (file, dest) ->
   d = Q.defer()
@@ -220,5 +266,6 @@ module.exports = {
   Page: Page
   Paths: Paths
   router: router
+  index: new Index
 }
 
