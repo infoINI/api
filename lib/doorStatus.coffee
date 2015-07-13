@@ -1,6 +1,7 @@
 Q = require 'q'
 net = require 'net'
 config = require './config'
+logger = require './logger'
 
 module.exports = {
   get: ->
@@ -15,7 +16,7 @@ module.exports = {
       d.resolve(tuerStatus)
 
     client.on 'error', (e) ->
-      console.warn 'tuer: request failed', e.toString()
+      logger.info 'tuer: request failed', e.toString()
       d.reject(e)
 
     client.connect(config.tuerPort, config.tuerHost)

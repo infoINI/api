@@ -1,4 +1,5 @@
 config = require './config'
+logger = require './logger'
 http = require 'http'
 Q = require 'q'
 
@@ -15,9 +16,13 @@ module.exports = {
         # value ignored
         cafeStatus.status = undefined
         d.resolve(cafeStatus)
+    # set connection timeout
+    .on 'socket', (socket) ->
+      socket.setTimeout 1000
+      socket.on 'timeout', -> req.abort()
     .on 'error', (e) ->
-      console.warn 'cafe: request failed', e.toString()
+      logger.info 'cafe: request failed', e.toString()
       d.reject(e)
-    .end()
+    req.end()
     return d.promise
 }

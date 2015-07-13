@@ -1,6 +1,8 @@
 express = require 'express'
+path = require 'path'
 
 config = require './config'
+logger = require './logger'
 
 coffeeStatus = require './coffeeStatus'
 doorStatus = require './doorStatus'
@@ -15,15 +17,16 @@ members.setApiKey config.redmineAuthKey
 
 app = express()
 app.set 'view engine', 'jade'
+app.set 'views', path.join(__dirname, 'views')
 
 
-app.use '/api/lh', lh.router
 
 # logging
 app.use (req, res, next) ->
-  console.log req.method, req.path
+  logger.verbose req.method, req.path
   next()
 
+app.use '/api/lh', lh
 
 # compatibility for infoini app
 app.get '/api/status.xml', (req, res) ->
