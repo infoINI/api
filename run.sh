@@ -5,6 +5,6 @@ cd /local/api
 
 sleep 5
 for i in `seq 10`; do
-	coffee app.coffee
+	bin/inid.js
 done
 

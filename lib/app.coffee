@@ -54,11 +54,12 @@ app.get '/api/status.xml', (req, res) ->
   , (e) -> res.status(500).send e
 
 app.get '/api/combined.json', (req, res) ->
-  coffeeStatus.get().then (data) ->
-    combined = {}
-    combined.pots = data.pots
-    combined.status = tuerStatus.status
-    res.json combined
+  coffeeStatus.get().then (cafeStatus) ->
+    doorStatus.get().then (tuerStatus) ->
+      combined = {}
+      combined.pots = cafeStatus.pots
+      combined.status = tuerStatus.status
+      res.json combined
   , (e) -> res.status(500).send e
 
 
@@ -95,6 +96,6 @@ app.get '/api/mensa.json', (req, res) ->
 
 
 
-app.use('/api', express.static(__dirname + '/static'))
+app.use('/api', express.static(__dirname + '/../static'))
 app.listen(config.httpPort)
 

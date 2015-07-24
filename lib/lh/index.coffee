@@ -9,7 +9,6 @@ config = require '../config'
 logger = require '../logger'
 
 Dir = require './dir'
-Page = require './page'
 Paths = require './paths'
 File = require './file'
 
@@ -79,24 +78,27 @@ router.get '/file/*', (req, res) ->
 
 router.get '/list/*', (req, res) ->
   pathParam = req.params[0]
-  Page.create(pathParam).then (page) ->
-    res.json page.toJSON()
+  Dir.create(pathParam, 1).then (dir) ->
+    try
+      res.json dir.toJSON()
+    catch e
+      res.status(500).end(e.toString())
   , (e) ->
-    res.status(500).end(e.toString())
+    res.status(500).send(e.toString())
+  .done()
 
 
 router.get '/listhtml/*', (req, res) ->
   pathParam = req.params[0]
-  Page.create(pathParam).then (page) ->
+  Dir.create(pathParam, 2).then (dir) ->
     res.render('page', (
-      title: 'LH: ' + page.path
-      path: page.path
-      files: page.files
-      dirs: page.subdirs
-      description: markdown.markdown.toHTML(page.dir.text)
-      meta: JSON.stringify(page.meta, null, 2)
+      title: 'LH: ' + dir.path
+      path: dir.path
+      files: dir.files
+      dirs: dir.dirs
+      description: markdown.markdown.toHTML(dir.text)
+      meta: JSON.stringify(dir.meta, null, 2)
     ))
-    console.log page.dir.text
   , (e) ->
     res.status(500).end(e.toString())
 

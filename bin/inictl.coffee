@@ -26,6 +26,14 @@ program
   .action (dir, options) ->
     logger.setLevel(program)
     logger.info 'index', dir
+    process.exit()
+
+program
+  .command 'merge-pdf <files...>'
+  .description 'merge images to one pdf using pdfjam'
+  .action ->
+    logger.setLevel(program)
+    logger.info 'merge-pdf'
 
 program
   .command 'list-uploads'

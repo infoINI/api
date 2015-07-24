@@ -26,6 +26,10 @@ LogToWinston = (config) ->
   return @
 
 class Search
+  types: []
+  registerType: (typeSpec) -> @types.push typeSpec
+
+
   constructor: ->
     @client = new elasticsearch.Client(
       host: 'localhost:9200'
@@ -34,41 +38,12 @@ class Search
     @createUpdateMapping()
 
   createUpdateMapping: ->
-    mappings = {
-      file:
-        properties:
-          availible:
-            type: 'boolean'
-          title:
-            type: 'string'
-          checksum:
-            type: 'string'
-          text:
-            type: 'string'
-          tags: # array of strings
-            type: 'string'
-          mime:
-            type: 'string'
-          size:
-            type: 'long'
-      dir:
-        properties:
-          availible:
-            type: 'boolean'
-          subdirs:
-            type: 'string'
-          files:
-            type: 'string'
-          tags: # array of strings
-            type: 'string'
-          description:
-            type: 'string'
-    }
-    for name, mapping of mappings
+    for type in @types
+      name = type.name
+      mapping.type.indexMapping
       @client.indices.putMapping(
         type: name
         body: mapping
       )
-
 
 module.exports = new Search

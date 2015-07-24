@@ -1,4 +1,6 @@
 Q = require 'q'
+moment = require 'moment'
+
 request = require 'request'
 config = require './config'
 
@@ -51,6 +53,7 @@ module.exports = class MensaFeed
     dates = @getDates()
     categories = @getRowsTitles()
     for d, di in dates
+      d = moment(d.substr(d.indexOf(' ')+1), 'DD.MM.YYYY').unix()
       plan[d] = {}
       for c, ci in categories
         plan[d][c] = @getContents(ci+1, di+1)

@@ -28,8 +28,8 @@ html
               = ' '
               if dir.meta.alias
                 span (#{dir.meta.alias})
-            td= dir.files
-            td= dir.dirs
+            td= dir.files.length
+            td= dir.dirs.length
             td= dir.meta.tags.join(', ')
 
     h2 Files
