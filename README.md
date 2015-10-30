@@ -1,3 +1,10 @@
+Docker usage
+------------
+
+To develop using docker run
+
+    make docker-run-develop LH_ROOT=/path/to/test/archive
+
 
 TODO
 ----
