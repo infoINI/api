@@ -11,10 +11,9 @@ RUN npm install
 
 RUN mkdir /data /uploads
 
-ADD lib lib 
+ADD lib lib
 ADD static static
-ADD bin bin 
-ADD config.yaml config.yaml
+ADD bin bin
 
 
 CMD "npm start"
