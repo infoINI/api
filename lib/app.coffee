@@ -16,15 +16,18 @@ lh = require './lh'
 members.setApiKey config.redmineAuthKey
 
 app = express()
-app.set 'view engine', 'jade'
-app.set 'views', path.join(__dirname, 'views')
-
-
 
 # logging
 app.use (req, res, next) ->
   logger.verbose req.method, req.path
   next()
+
+app.set 'view engine', 'jade'
+app.set 'views', path.join(__dirname, 'views')
+
+
+
+
 
 app.use '/api/lh', lh
 
