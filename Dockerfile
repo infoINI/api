@@ -16,4 +16,4 @@ ADD static static
 ADD bin bin
 
 
-CMD "npm start"
+CMD [ "npm", "start" ]
