@@ -14,4 +14,10 @@ module.exports = {
   mensaUrl:
     'http://www.studentenwerk-berlin.de/speiseplan/rss/beuth/woche/kurz/0'
   redmineAuthKey: ''
+  ldapServerUrl: 'ldap://localhost:389'
+  ldapBindDn: 'cn=root'
+  ldapBindCredentials: ''
+  ldapSearchBase: ''
+  ldapSearchFilter: 'uid={{username}}'
+  sessionSecret: '' + Math.random()
 }

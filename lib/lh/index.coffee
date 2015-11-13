@@ -4,9 +4,38 @@ Q = require 'q'
 express = require 'express'
 multipart = require 'connect-multiparty'
 markdown = require 'markdown'
+passport = require 'passport'
+LdapStrategy = require('passport-ldapauth').Strategy
 
 config = require '../config'
 logger = require '../logger'
+
+
+passport.serializeUser (user, done) ->
+  done(null, JSON.stringify(user))
+
+passport.deserializeUser (user, done) ->
+  done(null, JSON.parse(user))
+
+passport.use(
+  new LdapStrategy(
+    (
+      server:
+        url: config.ldapServerUrl
+        bindDn: config.ldapBindDn
+        bindCredentials: config.ldapBindCredentials
+        searchAttributes: config.ldapSearchAttributes
+        searchBase: config.ldapSearchBase
+        searchFilter: config.ldapSearchFilter
+    )
+    ,
+    (user, cb) ->
+      if user?.department == 'Informatik und Medien'
+        cb(null, user)
+      else
+        cb(new Error('user not part of FB6'))
+  )
+)
 
 Dir = require './dir'
 Paths = require './paths'
@@ -16,6 +45,23 @@ File = require './file'
 multipartMiddleware = multipart()
 
 router = express.Router()
+
+#router.use(express.cookieParser())
+#router.use(express.bodyParser())
+router.use(require('body-parser').urlencoded(extended: false))
+router.use(require('cookie-parser')())
+router.use(require('express-session')( secret: 'bla' ))
+#router.use(express.session({ secret: 'keyboard cat' }))
+router.use(passport.initialize())
+router.use(passport.session())
+
+#router.use(passport.initialize())
+#router.use(passport.authenticate('ldapauth'))
+ensureAuth = (req, res, next) ->
+  if req.user
+    next()
+  else
+    res.sendStatus(403)
 
 
 handleFileUpload = (file, dest) ->
@@ -36,6 +82,13 @@ handleFileUpload = (file, dest) ->
       d.resolve(file)
   d.promise
 
+
+router.post '/login', passport.authenticate('ldapauth'), (req, res) ->
+  console.log 'login'
+  if req.user
+    res.sendStatus(200)
+  else
+    res.sendStatus(403)
 
 router.post '/file/', multipartMiddleware, (req, res) ->
   files = req.files.files
