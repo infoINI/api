@@ -123,13 +123,13 @@ router.post '/file/', multipartMiddleware, (req, res) ->
     res.json status, 500
 
 
-router.get '/file/*', (req, res) ->
+router.get '/file/*', ensureAuth, (req, res) ->
   pathParam = req.params[0]
   fullPath = Paths.getFullPath(pathParam)
   res.sendFile fullPath
 
 
-router.get '/list/*', (req, res) ->
+router.get '/list/*', ensureAuth, (req, res) ->
   pathParam = req.params[0]
   Dir.create(pathParam, 1).then (dir) ->
     try
@@ -141,7 +141,7 @@ router.get '/list/*', (req, res) ->
   .done()
 
 
-router.get '/listhtml/*', (req, res) ->
+router.get '/listhtml/*', ensureAuth, (req, res) ->
   pathParam = req.params[0]
   Dir.create(pathParam, 2).then (dir) ->
     res.render('page', (
