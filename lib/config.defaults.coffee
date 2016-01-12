@@ -1,7 +1,7 @@
 module.exports = {
   httpPort: 3000
-  lhRoot: './archive'
-  lhUploads: './uploads'
+  lhRoot: '/data'
+  lhUploads: '/uploads'
   fileZuendstoff:
     'http://infoini.de/redmine/attachments/download/422/zs-ss2015.pdf'
   refreshIntervalCafe: 1000
@@ -20,4 +20,5 @@ module.exports = {
   ldapSearchBase: ''
   ldapSearchFilter: 'uid={{username}}'
   sessionSecret: '' + Math.random()
+  elasticHost: 'elasticsearch:9200'
 }

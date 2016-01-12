@@ -40,7 +40,9 @@ passport.use(
 Dir = require './dir'
 Paths = require './paths'
 File = require './file'
+Search = require './search'
 
+Search.createUpdateMapping()
 
 multipartMiddleware = multipart()
 
@@ -58,7 +60,7 @@ router.use(passport.session())
 #router.use(passport.initialize())
 #router.use(passport.authenticate('ldapauth'))
 ensureAuth = (req, res, next) ->
-  if req.user
+  if req.user || process.env.DISABLE_AUTH == 'true'
     next()
   else
     res.sendStatus(403)

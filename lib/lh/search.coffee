@@ -10,6 +10,8 @@ LogToWinston = (config) ->
   @warning = logger.warn.bind(logger)
   @info = logger.info.bind(logger)
   @debug = logger.debug.bind(logger)
+  @trace = logger.debug.bind(logger)
+  ###
   @trace = (method, requestUrl, body, responseBody, responseStatus) ->
     logger.debug (
       """
@@ -22,6 +24,7 @@ LogToWinston = (config) ->
 
       """
     )
+  ###
   @close = ->
   return @
 
@@ -32,18 +35,35 @@ class Search
 
   constructor: ->
     @client = new elasticsearch.Client(
-      host: 'localhost:9200'
+      host: config.elasticHost
       log: LogToWinston
     )
-    @createUpdateMapping()
+    #@createUpdateMapping()
+
+  index: (type, id, body) ->
+    @client.create({
+      index: 'lh'
+      type: type
+      id: id
+      body: body
+    })
 
   createUpdateMapping: ->
-    for type in @types
-      name = type.name
-      mapping.type.indexMapping
-      @client.indices.putMapping(
-        type: name
-        body: mapping
-      )
+    logger.info 'search: creating index'
+    @client.indices.create(
+      index: 'lh'
+    ).then(
+      -> logger.info 'search: index created'
+    , -> logger.info 'search: index already exists'
+    ).then =>
+      for type in @types
+        name = type.name
+        mapping = type.indexMapping
+        logger.info 'search: [re]creating type: ' + name
+        @client.indices.putMapping(
+          index: 'lh'
+          type: name
+          body: mapping
+        )
 
 module.exports = new Search
