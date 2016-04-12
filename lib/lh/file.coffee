@@ -15,7 +15,7 @@ magic = new mmm.Magic(mmm.MAGIC_MIME_TYPE)
 class File
   @indexMapping:
     properties:
-      availible:
+      available:
         type: 'boolean'
       title:
         type: 'string'
@@ -57,7 +57,7 @@ class File
   # add /update file in index
   index: ->
     Search.index(@constructor.name, @id, {
-      availible: true # TODO
+      available: true # TODO
       title: @name
       checksum: '0' #TODO
       text: @text

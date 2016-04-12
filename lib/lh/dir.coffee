@@ -14,7 +14,7 @@ Search = require './search'
 class Dir
   @indexMapping:
     properties:
-      availible:
+      available:
         type: 'boolean'
       subdirs:
         type: 'string'
@@ -111,7 +111,7 @@ class Dir
 
   # add update dir in index
   index: (recurse = 0) ->
-    
+
 
 
 Search.registerType Dir
