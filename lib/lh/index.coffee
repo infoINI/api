@@ -30,7 +30,7 @@ passport.use(
     )
     ,
     (user, cb) ->
-      if user?.department == 'Informatik und Medien'
+      if user?.department == 'Informatik und Medien' or user?.department == 'FB6'
         cb(null, user)
       else
         cb(new Error('user not part of FB6'))
