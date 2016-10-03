@@ -38,9 +38,9 @@ Aktueller Füllstand der Kaffeekannen.
 
 Struktur::
 
-    { "pots" : 
-        [ 
-            { 
+    { "pots" :
+        [
+            {
                 "status" : STATUS ,
                 "level": LEVEL
             },
@@ -51,8 +51,8 @@ Struktur::
 Platzhalter:
 
 * ``STATUS`` Status der Kanne
-    * ``"AVAILIBLE"``
-    * ``"UNAVAILIBLE"``
+    * ``"AVAILABLE"``
+    * ``"UNAVAILABLE"``
 * ``LEVEL`` Füllstand der Kanne in Prozent
     * ``0`` bis ``100``
     * ``undefined``
