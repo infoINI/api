@@ -22,7 +22,7 @@ module.exports = {
       socket.on 'timeout', -> req.abort()
     .on 'error', (e) ->
       logger.info 'cafe: request failed', e.toString()
-      d.reject(e)
+      d.resolve({})
     req.end()
     return d.promise
 }

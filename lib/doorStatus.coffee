@@ -17,7 +17,7 @@ module.exports = {
 
     client.on 'error', (e) ->
       logger.info 'tuer: request failed', e.toString()
-      d.reject(e)
+      d.resolve({})
 
     client.connect(config.tuerPort, config.tuerHost)
     return d.promise
